@@ -28,6 +28,25 @@ db_connection = mysql.connector.connect(
 # create a cursor
 db_cursor = db_connection.cursor()
 
+@app.get("/roles")
+def get_roles():
+    query = "select * from role"
+    db_cursor.execute(query)
+    roles = db_cursor.fetchall()
+
+    result = []
+    for role in roles:
+        role_dict = {
+            'id' : role[0] ,
+            'title' : role[1] ,
+            'slug' : role[2] ,
+            'description' : role[3]
+        }
+        result.append(role_dict)
+
+    return {
+        'roles': result
+    }
 
 if __name__=='__main__':
     app.run( host='0.0.0.0', port = api_port )
