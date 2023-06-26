@@ -25,9 +25,12 @@ db_connection = mysql.connector.connect(
     database = db_database
 )
 
+# create a cursor
+db_cursor = db_connection.cursor()
+
 @app.get("/roles")
 def get_roles():
-    query = "select * from roles"
+    query = "select * from role"
     db_cursor.execute(query)
     roles = db_cursor.fetchall()
 
@@ -44,10 +47,6 @@ def get_roles():
     return {
         'roles': result
     }
-
-# create a cursor
-db_cursor = db_connection.cursor()
-
 
 if __name__=='__main__':
     app.run( host='0.0.0.0', port = api_port )
