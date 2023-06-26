@@ -25,6 +25,7 @@ db_connection = mysql.connector.connect(
     database = db_database
 )
 
+@app.get("/roles")
 def get_roles():
     query = "select * from roles"
     db_cursor.execute(query)
