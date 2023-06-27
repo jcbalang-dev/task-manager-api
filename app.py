@@ -2,6 +2,7 @@ from flask import Flask
 from dotenv import dotenv_values
 import mysql.connector
 import paramiko
+from sshtunnel import SSHTunnelForwarder
 
 # Load environment variables from .env 
 env = dotenv_values()
@@ -18,47 +19,46 @@ db_database = env['DB_DATABASE']
 
 #mysql ssh connection
 mysql_port = int(env['MYSQL_PORT'])
+
 use_ssh = bool(env.get('USE_SSH','False'))
+use_ssh_password = bool(env.get('USE_SSH_PASSWORD','False'))
 
 ssh_host = env['SSH_HOST']
 ssh_username = env['SSH_USERNAME']
-ssh_private_key_path = env['SSH_PRIVATE_KEY_PATH']
+ssh_password = env.get('SSH_PASSWORD', '')
+ssh_private_key_path = env.get('SSH_PRIVATE_KEY_PATH','')
 
 
 app = Flask(__name__)
 
 # MySQL connection
 if use_ssh:
-    # create ssh client
-    ssh_client = paramiko.SSHClient()
-    ssh_client.load_system_host_keys()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    # establish ssh connection
-    ssh_client.connect(
-        ssh_host ,
-        username = ssh_username ,
-        key_filename = ssh_private_key_path
+    # create SSH tunnel
+    tunnel = SSHTunnelForwarder(
+        (ssh_host, 22),
+        ssh_username=ssh_username,
+        ssh_password=ssh_password,
+        ssh_pkey= ssh_private_key_path if use_ssh_password and use_ssh_password !='' else ssh_password,
+        remote_bind_address=(db_host, mysql_port)
     )
 
-    # create an ssh tunnel and forward the MySQL port
-    ssh_tunnel = ssh_client.get_transport().open_channel('direct-tcpip', (db_host, mysql_port), ('localhost', mysql_port))
+    tunnel.start()
 
     #connection using SSH
-    db_connection = mysql.connector.connect(
-        host = '127.0.0.1' ,
-        port = mysql_port ,
-        user = db_user ,
-        password = db_password ,
-        database = db_database ,
-        unix_socket = '',
-        ssl_disabled = True ,
-        use_pure = True ,
-        connection_time_out = 30 ,
-        allow_local_infile = True ,
-        ssl_verify_cert = False ,
-        ssh = ssh_tunnel
-    )
+    db_config = {
+        'user'                  : db_user,
+        'password'              : db_password,
+        'host'                  : 'localhost',
+        'port'                  : tunnel.local_bind_port,
+        'database'              : db_database,
+        'unix_socket'           : '',
+        'ssl_disabled'          : True,
+        'use_pure'              : True,
+        'allow_local_infile'    : True,
+        'ssl_verify_cert'       : False
+    }
+    
+    db_connection = mysql.connector.connect(**db_config)
 else:
     # connection without SSH
     db_connection = mysql.connector.connect(
@@ -81,4 +81,4 @@ db_connection.close()
 
 # close SSH connection
 if use_ssh:
-    ssh_client.close()
+    tunnel.stop()
