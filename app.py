@@ -71,6 +71,54 @@ else:
 # create a cursor
 db_cursor = db_connection.cursor()
 
+# NOTE!!!
+# Please remove this code once MVC is established
+
+@app.get("/roles")
+def get_roles():
+    query = 'select * from role'
+    db_cursor.execute(query)
+    roles = db_cursor.fetchall()
+
+    result = []
+    for role in roles:
+        role_dict = {
+            'id' : role[0] ,
+            'title' : role[1] ,
+            'slug' : role[2] ,
+            'description' : role[3]
+        }
+        result.append(role_dict)
+
+    return {
+        'roles': result
+    }
+
+@app.get("/users")
+def get_users():
+    query = 'select * from user'
+    db_cursor.execute(query)
+    users = db_cursor.fetchall()
+
+    result = []
+    for user in users:
+        user_dict = {
+            'id' : user[0] ,
+            'role_id' : user[1] ,
+            'last_name' : user[2] ,
+            'first_name' : user[3] ,
+            'middle_name' : user[4] ,
+            'username' : user[5] ,
+            'email' : user[6] ,
+            'password' : user[7] ,
+            'created_at' : user[8] ,
+            'updated_at' : user[9]
+        }
+        result.append(user_dict)
+
+    return {
+        'users' : result
+    }
 
 if __name__=='__main__':
     app.run( host='0.0.0.0', port = api_port )
