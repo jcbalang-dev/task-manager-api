@@ -2,21 +2,21 @@ from flask import Flask
 from flask_restful import Api
 from dotenv import dotenv_values
 from db import Database
+from config import Config
 
 # Initialize database connection
 Database.initialize()
 
 from app.controllers.user_controller import UserController, UserDetailController
 
-
 # Load environment variables from .env 
 env = dotenv_values()
 
-# environment variables
 # server port
-api_port = int(env['PORT_NUMBER'])
+api_port = Config.API_PORT
 
 app = Flask(__name__)
+app.config.from_object(Config)
 api = Api(app)
 
 # add resource routes

@@ -1,5 +1,5 @@
 import mysql.connector.pooling
-from dotenv import dotenv_values
+from config import Config
 from sshtunnel import SSHTunnelForwarder
 
 
@@ -7,29 +7,28 @@ class Database:
     connection_pool = None
     ssh_tunnel = None
     
-    env = dotenv_values()
-
     @classmethod
     def initialize(cls):
         # MySQL connection
-        db_host = cls.env['DB_HOST']
-        db_user = cls.env['DB_USER']
-        db_password = cls.env['DB_PASSWORD']
-        db_database = cls.env['DB_DATABASE']
+        db_host = Config.DB_HOST
+        db_user = Config.DB_USER
+        db_password = Config.DB_PASSWORD
+        db_database = Config.DB_DATABASE
 
-        #mysql ssh connection
-        mysql_port = int(cls.env['MYSQL_PORT'])
+        # mysql ssh connection
+        mysql_port = Config.MYSQL_PORT
 
-        use_ssh = bool(cls.env.get('USE_SSH','False'))
-        use_ssh_password = bool(cls.env.get('USE_SSH_PASSWORD','False'))
+        # ssh flag
+        use_ssh = Config.USE_SSH
+        use_ssh_password = Config.USE_SSH_PASSWORD 
 
-        ssh_host = cls.env['SSH_HOST']
-        ssh_port = int(cls.env.get('SSH_PORT', 22))
-        ssh_pool_name = cls.env.get('SSH_POOL_NAME', 'mydbpool')
-        ssh_pool_size = int(cls.env.get('SSH_POOL_SIZE', 5))
-        ssh_username = cls.env['SSH_USERNAME']
-        ssh_password = cls.env.get('SSH_PASSWORD', '')
-        ssh_private_key_path = cls.env.get('SSH_PRIVATE_KEY_PATH','')
+        ssh_host = Config.SSH_HOST
+        ssh_port = Config.SSH_PORT
+        ssh_pool_name = Config.SSH_POOL_NAME
+        ssh_pool_size = Config.SSH_POOL_SIZE
+        ssh_username = Config.SSH_USERNAME
+        ssh_password = Config.SSH_PASSWORD
+        ssh_private_key_path = Config.SSH_PRIVATE_KEY_PATH
 
         if use_ssh:
             # Create SSH Tunnel
