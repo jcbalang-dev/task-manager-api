@@ -8,5 +8,7 @@
 `docker-compose up`
 4. Start service in the background
 `docker-compose up -d`
-4. To stop and remove the services
+5. To stop and remove the services
 `docker-compose down`
+6. Check background for running services
+`docker-compose ps`
