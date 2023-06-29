@@ -6,3 +6,6 @@
 2. Run docker container
 `docker run -p 5000:5000 taskmanagerapi`
 3. Access the application
+
+## Remove docker 
+`docker rm taskmanagerapi`
