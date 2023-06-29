@@ -1,11 +1,14 @@
 # Task Manager API
 
 ## Installation
-1. Build the docker image
+1. Create .env
+`cp .env.example .env`
+2. Provide necessary setup to .env
+3. Build the docker image
 `docker build -t taskmanagerapi .`
-2. Run docker container
+4. Run docker container
 `docker run -p 5000:5000 taskmanagerapi`
-3. Access the application
+5. Access the application
 
-## Remove docker 
+## Remove docker container 
 `docker rm taskmanagerapi`
