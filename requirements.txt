@@ -1,0 +1,6 @@
+python-dotenv
+flask
+flask-restful
+mysql-connector-python
+paramiko
+sshtunnel
